@@ -3,15 +3,14 @@ import logging
 import sys
 import zeit.connector.connector
 import zeit.connector.filesystem
-import zeit.connector.interfaces
 
 
 log = logging.getLogger(__name__)
 
 
-def set_props_from_file(argv=None):
+def put_from_file(argv=None):
     parser = argparse.ArgumentParser(
-        description='Set DAV properties from Filesystem data')
+        description='Update DAV resources from filesystem data')
     parser.add_argument(
         'uniqueId',
         help='uniqueId, prefix either http://xml.zeit.de or /var/cms/work')
@@ -32,15 +31,18 @@ def set_props_from_file(argv=None):
         options.uniqueId = options.uniqueId.replace(
             '/var/cms/work', 'http://xml.zeit.de', 1)
 
-    log.info('Processing %s', options.uniqueId)
     dav = zeit.connector.connector.Connector({'default': options.dav_url})
     fs = zeit.connector.filesystem.Connector(options.fs_path)
-    # Cannot use Connector.changeProperties, since that excludes the `UUID`
-    # property, and is too slow due to locking and id-canonicalizing.
-    davres = dav._get_dav_resource(options.uniqueId)
-    davres.change_properties(
-        fs._get_properties(options.uniqueId),
-        delmark=zeit.connector.interfaces.DeleteProperty)
+    put(dav, fs, options.uniqueId)
+
+
+def put(dav, fs, uniqueId):
+    log.info('Processing %s', uniqueId)
+    res = fs[uniqueId]
+    dav[uniqueId] = res
+    if res.type == 'collection':
+        for child in fs.listCollection(uniqueId):
+            put(dav, fs, uniqueId)
 
 
 def setup_logging(level=logging.INFO):

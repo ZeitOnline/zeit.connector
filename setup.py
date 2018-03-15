@@ -55,6 +55,6 @@ setup(
     },
     entry_points={'console_scripts': [
         'refresh-cache = zeit.connector.invalidator:invalidate_whole_cache',
-        'set-properties = zeit.connector.restore:set_props_from_file',
+        'dav-put-from-fs = zeit.connector.restore:put_from_file',
     ]}
 )
