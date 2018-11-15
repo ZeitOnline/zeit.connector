@@ -73,7 +73,7 @@ class MetadataTest(zeit.connector.testing.FilesystemConnectorTest):
     def test_empty_attribute_node_is_parsed_as_empty_string(self):
         image = self.connector['http://xml.zeit.de/2006/DSC00109_2.JPG']
         copyrights = image.properties[
-            ('copyrights', 'http://namespaces.zeit.de/CMS/document')]
+            ('year', 'http://namespaces.zeit.de/CMS/document')]
         self.assertEqual(u'', copyrights)
 
     def test_raw_files_return_dav_contenttype(self):
